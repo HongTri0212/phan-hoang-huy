@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⏳ CỖ MÁY THỜI GIAN 19/11 - PHAN HOÀNG HUY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background: #090614;
+      color: #fff;
+      font-family: 'Be Vietnam Pro', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* ================= TẦNG 1: CỖ MÁY THỜI GIAN C2 -> ĐH ================= */
+    #time-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: radial-gradient(circle at center, #1e1136 0%, #07040f 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .time-ring {
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      border: 4px dashed #f59e0b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      box-shadow: 0 0 40px rgba(245, 158, 11, 0.35), inset 0 0 25px rgba(168, 85, 247, 0.3);
+      position: relative;
+      animation: pulseRing 1.2s infinite alternate;
+    }
+
+    #era-icon {
+      font-size: 3.2rem;
+      margin-bottom: 4px;
+    }
+
+    #era-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #fbbf24;
+      letter-spacing: 1px;
+    }
+
+    .sys-subtitle {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      color: #c084fc;
+      margin-bottom: 8px;
+    }
+
+    .friend-title {
+      font-size: clamp(1.3rem, 3.8vw, 2rem);
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    #time-status {
+      color: #e2e8f0;
+      font-size: 1rem;
+      min-height: 26px;
+      margin-bottom: 22px;
+      font-weight: 600;
+    }
+
+    #open-capsule-btn {
+      display: none;
+      padding: 15px 32px;
+      border-radius: 50px;
+      border: 2px solid #fff;
+      background: linear-gradient(135deg, #f59e0b, #ec4899);
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.05rem;
+      cursor: pointer;
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.8);
+      animation: bounceBtn 0.7s infinite alternate;
+    }
+
+    .time-shake {
+      animation: shakeBox 0.15s infinite;
+    }
+
+    /* ================= TẦNG 2: SÂN KHẤU Ú ÒA & DÒNG THỜI GIAN ================= */
+    #flash-warm {
+      position: fixed;
+      inset: 0;
+      background: #fef3c7;
+      z-index: 1010;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.75s ease;
+    }
+
+    #star-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #surprise-stage {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      background: radial-gradient(circle at center, rgba(45, 20, 75, 0.8) 0%, rgba(9, 6, 20, 0.96) 100%);
+      overflow-y: auto;
+    }
+
+    .uo-tag {
+      font-size: clamp(2.3rem, 6vw, 4rem);
+      font-weight: 900;
+      background: linear-gradient(45deg, #fbbf24, #f472b6, #a855f7, #38bdf8);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275), gradientFlow 3s ease infinite;
+      margin-bottom: 4px;
+      filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.5));
+    }
+
+    .main-wish {
+      font-size: clamp(1.15rem, 3vw, 1.95rem);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 14px;
+      letter-spacing: 0.8px;
+    }
+
+    /* Thanh hành trình C2 -> C3 -> ĐH */
+    .journey-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      padding: 8px 18px;
+      border-radius: 50px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #fbbf24;
+      flex-wrap: wrap;
+    }
+
+    .capsule-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 2px solid rgba(251, 191, 36, 0.55);
+      backdrop-filter: blur(15px);
+      border-radius: 26px;
+      padding: 24px 26px;
+      max-width: 640px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(168, 85, 247, 0.25);
+    }
+
+    /* Mini-game: Mở khóa Hộp Thời Gian */
+    .chest-icon {
+      font-size: 4.8rem;
+      cursor: pointer;
+      display: inline-block;
+      transition: transform 0.1s;
+      filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.8));
+    }
+
+    .chest-icon:active {
+      transform: scale(0.86) rotate(-10deg);
+    }
+
+    .unlock-bar-bg {
+      width: 85%;
+      margin: 14px auto 10px;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #unlock-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #a855f7, #ec4899, #fbbf24);
+      transition: width 0.15s ease;
+    }
+
+    #unlock-hint {
+      font-size: 0.95rem;
+      color: #fbbf24;
+      font-weight: 700;
+    }
+
+    /* Lời chúc & Chứng nhận bạn thân */
+    #wish-card {
+      display: none;
+      animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .wish-header {
+      font-size: 1.18rem;
+      font-weight: 900;
+      color: #fbbf24;
+      margin-bottom: 12px;
+    }
+
+    .wish-body {
+      background: rgba(251, 191, 36, 0.08);
+      border: 1.5px solid rgba(244, 114, 182, 0.55);
+      padding: 20px 18px;
+      border-radius: 18px;
+      font-size: clamp(0.95rem, 2.2vw, 1.08rem);
+      line-height: 1.78;
+      color: #f8fafc;
+      margin-bottom: 18px;
+      text-align: center;
+      box-shadow: inset 0 0 25px rgba(251, 191, 36, 0.1);
+    }
+
+    #bestie-cert {
+      display: none;
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.22), rgba(251, 191, 36, 0.22));
+      border: 1.5px solid #fbbf24;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      animation: popIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      min-height: 48px;
+    }
+
+    .btn-gold {
+      padding: 12px 22px;
+      border-radius: 50px;
+      border: none;
+      background: linear-gradient(90deg, #fbbf24, #f472b6);
+      color: #140824;
+      font-weight: 900;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.45);
+      transition: transform 0.2s;
+    }
+
+    .btn-memory {
+      padding: 12px 22px;
+      border-radius: 50px;
+      border: 1.5px solid #c084fc;
+      background: rgba(168, 85, 247, 0.22);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .btn-gold:hover {
+      transform: scale(1.05);
+    }
+
+    #memory-note {
+      font-size: 0.84rem;
+      color: #fbbf24;
+      margin-top: 10px;
+      font-weight: 700;
+      min-height: 20px;
+    }
+
+    .falling-item {
+      position: fixed;
+      top: -40px;
+      font-size: 1.8rem;
+      z-index: 20;
+      pointer-events: none;
+      animation: fallDown linear forwards;
+    }
+
+    @keyframes fallDown {
+      to { transform: translateY(110vh) rotate(360deg); }
+    }
+    @keyframes pulseRing {
+      from { transform: scale(0.96); }
+      to { transform: scale(1.06); }
+    }
+    @keyframes bounceBtn {
+      from { transform: translateY(0); }
+      to { transform: translateY(-6px); }
+    }
+    @keyframes shakeBox {
+      0% { transform: translate(2px, 2px); }
+      50% { transform: translate(-2px, -2px); }
+      100% { transform: translate(2px, -2px); }
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.2); opacity: 0; }
+      80% { transform: scale(1.06); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="flash-warm"></div>
+
+  <!-- TẦNG 1: CỖ MÁY THỜI GIAN -->
+  <div id="time-screen">
+    <div class="sys-subtitle">FRIENDSHIP TIME MACHINE • 19/11</div>
+    <div class="time-ring">
+      <div id="era-icon">🏫</div>
+      <div id="era-label">CẤP 2</div>
+    </div>
+
+    <div class="friend-title">HÀNH TRÌNH CỦA: PHAN HOÀNG HUY</div>
+    <div id="time-status">Đang tua lại ký ức từ những ngày đầu quen biết...</div>
+
+    <button id="open-capsule-btn" onclick="triggerTimeBoom()">✨ MỞ KHÓA KÝ ỨC & QUÀ 19/11! ✨</button>
+  </div>
+
+  <!-- TẦNG 2: SÂN KHẤU Ú ÒA -->
+  <canvas id="star-canvas"></canvas>
+  <div id="surprise-stage">
+    <div class="uo-tag">🎉 Ú ÒA!! ❤️</div>
+    <div class="main-wish">HAPPY MEN'S DAY 19/11<br>PHAN HOÀNG HUY!</div>
+
+    <div class="journey-bar">
+      <span>🏫 CẤP 2</span>
+      <span>➡️</span>
+      <span>🎒 CẤP 3</span>
+      <span>➡️</span>
+      <span>🎓 ĐẠI HỌC</span>
+      <span>➡️</span>
+      <span>🚀 TƯƠNG LAI RỰC RỠ</span>
+    </div>
+
+    <div class="capsule-card">
+      <!-- Bước 1: Mở khóa Hộp Thời Gian -->
+      <div id="capsule-game">
+        <div class="chest-icon" id="chest-icon" onclick="unlockCapsule()">⏳</div>
+        <div class="unlock-bar-bg">
+          <div id="unlock-fill"></div>
+        </div>
+        <div id="unlock-hint">Chạm liên tục vào đồng hồ cát để mở "Hộp Thời Gian C2 ➡️ ĐH"! (0%)</div>
+      </div>
+
+      <!-- Bước 2: Lời chúc & Chứng nhận bạn thân -->
+      <div id="wish-card">
+        <div class="wish-header">💗 GỬI PHAN HOÀNG HUY 💗</div>
+        <div class="wish-body" id="wish-text"></div>
+
+        <div id="bestie-cert">
+          <div style="color: #fbbf24; font-weight: 900; font-size: 1rem; margin-bottom: 6px;">
+            🏆 HUY HIỆU TRI KỶ TỪ CẤP 2 TỚI ĐẠI HỌC 🏆
+          </div>
+          Chứng nhận <b>Phan Hoàng Huy</b> là:<br>
+          <span style="color: #f472b6; font-weight: 800;">"Người Bạn Đồng Hành Đáng Quý & Bền Bỉ Nhất Hệ Mặt Trời"</span><br>
+          Dù sau này mỗi đứa một con đường, tụi mình vẫn mãi là anh em tốt nhé! 🥰❤️
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-gold" onclick="launchFireworks()">🎆 Bắn Pháo Hoa</button>
+          <button class="btn-memory" id="mem-btn" onclick="handleMemDodge()">🎁 Mở Kỷ Vật Cuối</button>
+        </div>
+        <div id="memory-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ================= 1. TUA THỜI GIAN TỪ C2 -> ĐH ================= */
+    const eraIcon = document.getElementById('era-icon');
+    const eraLabel = document.getElementById('era-label');
+    const timeStatus = document.getElementById('time-status');
+    const openCapsuleBtn = document.getElementById('open-capsule-btn');
+    const timeScreen = document.getElementById('time-screen');
+
+    const eras = [
+      { icon: "🏫", label: "CẤP 2", msg: "Khởi hành từ những năm tháng cấp 2 ngây ngô..." },
+      { icon: "🎒", label: "CẤP 3", msg: "Đồng hành qua bao mùa thi & kỷ niệm cấp 3..." },
+      { icon: "🎓", label: "ĐẠI HỌC", msg: "Lên tới Đại học vẫn kề vai sát cánh bên nhau!" },
+      { icon: "💥", label: "QUÁ TẢI!", msg: "⚠️ CẢNH BÁO: KHO KỶ NIỆM QUÁ DÀY ĐẶC — SẮP BÙNG NỔ!" }
+    ];
+
+    let eraIdx = 0;
+    const eraTimer = setInterval(() => {
+      eraIdx++;
+      if (eraIdx < eras.length) {
+        eraIcon.textContent = eras[eraIdx].icon;
+        eraLabel.textContent = eras[eraIdx].label;
+        timeStatus.textContent = eras[eraIdx].msg;
+        playTick(450 + eraIdx * 140, 0.1);
+
+        if (eraIdx === eras.length - 1) {
+          clearInterval(eraTimer);
+          eraLabel.style.color = "#f472b6";
+          timeStatus.style.color = "#fbbf24";
+          timeScreen.classList.add('time-shake');
+          openCapsuleBtn.style.display = 'inline-block';
+        }
+      }
+    }, 850);
+
+    /* ================= 2. BÙNG NỔ "Ú ÒA!" ================= */
+    let boomed = false;
+    function triggerTimeBoom() {
+      if (boomed) return;
+      boomed = true;
+
+      const flash = document.getElementById('flash-warm');
+      flash.style.opacity = '1';
+
+      setTimeout(() => {
+        timeScreen.style.display = 'none';
+        document.getElementById('surprise-stage').style.display = 'flex';
+        flash.style.opacity = '0';
+        launchFireworks();
+        spawnRain();
+        playMelody();
+      }, 260);
+    }
+
+    /* ================= 3. MỞ HỘP THỜI GIAN & GÕ LỜI CHÚC ================= */
+    const fullWish = "💗 Chúc Phan Hoàng Huy ngày 19/11 thật vui vẻ và ý nghĩa nhaaa! Từ cấp 2 đến tận khi lên đại học vẫn luôn là một người bạn đồng hành đáng quý. Mong rằng tình bạn của tụi mình sẽ mãi bền chặt, sau này dù mỗi đứa có một con đường riêng vẫn luôn nhớ về những kỷ niệm đã có. Chúc Huy luôn mạnh khỏe, học giỏi, gặp nhiều may mắn, sớm đạt được những ước mơ của mình và có thật nhiều thành công trong tương lai. Mong chúng ta sẽ còn cùng nhau tạo thêm thật nhiều kỷ niệm đẹp nữa nhaaa! 🥰❤️";
+
+    let unlockProgress = 0;
+    function unlockCapsule() {
+      if (unlockProgress >= 100) return;
+      unlockProgress += 20;
+      playTick(500 + unlockProgress * 4, 0.08);
+
+      const chest = document.getElementById('chest-icon');
+      chest.style.transform = `scale(1.25) rotate(${(Math.random() - 0.5) * 30}deg)`;
+      setTimeout(() => chest.style.transform = 'scale(1) rotate(0deg)', 110);
+
+      document.getElementById('unlock-fill').style.width = Math.min(unlockProgress, 100) + '%';
+
+      if (unlockProgress < 100) {
+        document.getElementById('unlock-hint').textContent = `Đang mở khóa ký ức từ Cấp 2 tới Đại học... (${unlockProgress}%) ⏳`;
+      } else {
+        document.getElementById('capsule-game').style.display = 'none';
+        document.getElementById('wish-card').style.display = 'block';
+        typeWish();
+        launchFireworks();
+        spawnRain();
+        playMelody();
+      }
+    }
+
+    function typeWish() {
+      const wishEl = document.getElementById('wish-text');
+      const charsArr = Array.from(fullWish);
+      let idx = 0;
+      const timer = setInterval(() => {
+        if (idx < charsArr.length) {
+          wishEl.textContent += charsArr[idx];
+          idx++;
+        } else {
+          clearInterval(timer);
+        }
+      }, 20);
+    }
+
+    /* ================= 4. NÚT KỶ VẬT NÉ CHUỘT ================= */
+    let dodgeCount = 0;
+    function handleMemDodge() {
+      const btn = document.getElementById('mem-btn');
+      const note = document.getElementById('memory-note');
+
+      if (dodgeCount === 0) {
+        btn.style.transform = 'translate(55px, -10px)';
+        note.textContent = "Hụt rồi bạn hiền ơi! Bắt lại lẹ nào 😜⏳";
+        playTick(680, 0.1);
+        dodgeCount++;
+      } else if (dodgeCount === 1) {
+        btn.style.transform = 'translate(-55px, 9px)';
+        note.textContent = "Suýt trúng! Thêm phát nữa là mở kỷ vật nè 😂";
+        playTick(820, 0.1);
+        dodgeCount++;
+      } else {
+        btn.style.transform = 'translate(0, 0)';
+        btn.style.display = 'none';
+        note.textContent = "🎉 Ú ÒA! TÌNH BẠN C2 ➡️ ĐH MÃI ĐỈNH NHÉ HUY! ❤️";
+        document.getElementById('bestie-cert').style.display = 'block';
+        launchFireworks();
+        spawnRain();
+        playMelody();
+      }
+    }
+
+    /* ================= 5. PHÁO HOA & MƯA ICON KỶ NIỆM ================= */
+    const canvas = document.getElementById('star-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    let sparks = [];
+    const colors = ['#fbbf24', '#f472b6', '#a855f7', '#38bdf8', '#fde047', '#ffffff'];
+
+    function spawnBurst(x, y) {
+      for (let i = 0; i < 80; i++) {
+        const angle = (Math.PI * 2 * i) / 80;
+        const speed = Math.random() * 6 + 2;
+        sparks.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          alpha: 1,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 3.5 + 1.5
+        });
+      }
+    }
+
+    function launchFireworks() {
+      for (let i = 0; i < 8; i++) {
+        setTimeout(() => {
+          spawnBurst(
+            Math.random() * canvas.width * 0.8 + canvas.width * 0.1,
+            Math.random() * canvas.height * 0.5 + 60
+          );
+        }, i * 250);
+      }
+    }
+
+    function spawnRain() {
+      const icons = ['💗', '🎓', '🏫', '❤️', '🎉', '✨', '🥰'];
+      for (let i = 0; i < 25; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'falling-item';
+          el.textContent = icons[Math.floor(Math.random() * icons.length)];
+          el.style.left = Math.random() * 95 + 'vw';
+          el.style.animationDuration = (Math.random() * 2 + 2.5) + 's';
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 4600);
+        }, i * 115);
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      sparks.forEach((s, i) => {
+        s.x += s.vx;
+        s.y += s.vy;
+        s.vy += 0.07;
+        s.alpha -= 0.014;
+        ctx.globalAlpha = Math.max(s.alpha, 0);
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+        if (s.alpha <= 0) sparks.splice(i, 1);
+      });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    /* ================= 6. ÂM THANH ================= */
+    let audioCtx;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playTick(freq, duration) {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playMelody() {
+      try {
+        initAudio();
+        const notes = [523.25, 659.25, 783.99, 1046.50, 880.00, 1046.50];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+          }, idx * 135);
+        });
+      } catch (e) {}
+    }
+  </script>
+</body>
+</html>
